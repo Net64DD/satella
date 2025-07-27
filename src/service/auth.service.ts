@@ -1,5 +1,5 @@
 import { ErrorResponse, Responses } from '../types/errors';
-import DiscordOAuthService from '../service/oauth';
+import DiscordOAuthService from './discord.oauth';
 import { Ulid, Uuid4 } from 'id128';
 
 import { User, UserSession } from '../model/user.model';
@@ -8,7 +8,9 @@ export type Session = {
     ulid: string;
     username: string;
     avatar: string;
+    alias: string;
     accentColor: string;
+    createdAt: Date;
 };
 
 export const createSessionAndUser = async (code: string) => {
@@ -37,8 +39,10 @@ export const createSessionAndUser = async (code: string) => {
                 refresh_token: token.refresh_token
             },
             username: oauth.username,
+            alias: oauth.username,
             avatar: `https://cdn.discordapp.com/avatars/${oauth.id}/${oauth.avatar}.png`,
-            accentColor: oauth.accent_color,
+            accentColor: oauth.accent_color || '#000000',
+            favoriteGames: [],
         });
         await user.save();
     }
@@ -120,7 +124,9 @@ export const getUserSession = async (token: string, refreshToken?: string): Prom
     return {
         ulid: user.ulid,
         username: user.username!,
+        alias: user.alias!,
         avatar: user.avatar!,
         accentColor: user.accentColor!,
+        createdAt: user.createdAt! || new Date(),
     };
 };

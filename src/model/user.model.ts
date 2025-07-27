@@ -8,11 +8,12 @@ export interface User {
         token_type: string;
         refresh_token: string;
     },
-    username?: string;
-    alias?: string;
-    avatar?: string;
-    accentColor?: string;
-    favoriteGames?: string[];
+    username: string;
+    alias: string;
+    avatar: string;
+    accentColor: string;
+    favoriteGames: string[];
+    createdAt: Date;
 }
 
 const UserSchema = new mongoose.Schema<User>({
@@ -23,13 +24,14 @@ const UserSchema = new mongoose.Schema<User>({
         token_type: String,
         refresh_token: String,
     },
-    username: String,
-    alias: String,
-    avatar: String,
-    accentColor: String,
+    username: { type: String, required: true },
+    alias: { type: String, required: true },
+    avatar: { type: String, required: true },
+    accentColor: { type: String, required: true },
     favoriteGames: {
         type: [String],
         default: [],
+        required: true,
     },
 });
 

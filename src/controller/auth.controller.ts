@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import DiscordOAuthService from '../service/oauth';
+import DiscordOAuthService from '../service/discord.oauth';
 
-import { createSessionAndUser, getUserSession, linkUserSession, Session } from '../service/auth.service';
+import { createSessionAndUser, linkUserSession } from '../service/auth.service';
 import { ErrorResponse, Responses } from '../types/errors';
 
 export const createAuthLink = (req: Request, res: Response) => {
