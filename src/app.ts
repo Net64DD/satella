@@ -3,9 +3,18 @@ import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 
+import { Session } from './service/auth.service';
+
 // Routes
 import authRouter from './routes/auth.router';
+import userRouter from './routes/user.router';
 import shortenerRouter from './routes/shortener.router';
+
+declare module "express-serve-static-core" {
+  interface Request {
+    session?: Session;
+  }
+}
 
 const startServer = async () => {
     const app = express();
@@ -22,6 +31,7 @@ const startServer = async () => {
     }));
 
     app.use('/v1/auth', authRouter);
+    app.use('/v1/user', userRouter);
     app.use('/v1/discord', shortenerRouter);
 
     app.set('port', process.env.PORT || 8080);
