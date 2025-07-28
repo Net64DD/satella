@@ -1,6 +1,6 @@
 import multer from 'multer';
 import { Router } from 'express';
-import { createPak, deletePak, downloadPak, listPaks, modifyPakAccess, uploadPak } from '../controller/cpak.controller';
+import { createPak, deletePak, downloadPak, listPaks, updatePak, uploadPak } from '../controller/cpak.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = Router();
@@ -15,7 +15,7 @@ router.get('/', authMiddleware, listPaks);
 router.post('/', authMiddleware, createPak);
 router.put('/:pakId', upload.single('pak'), authMiddleware, uploadPak);
 router.get('/:pakId', authMiddleware, downloadPak);
+router.patch('/:pakId', authMiddleware, updatePak);
 router.delete('/:pakId', authMiddleware, deletePak);
-router.post('/:pakId/access', authMiddleware, modifyPakAccess);
 
 export default router;

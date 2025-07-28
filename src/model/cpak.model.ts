@@ -18,7 +18,7 @@ export const ControllerPakSchema = new mongoose.Schema<ControllerPak>({
     name: { type: String, required: true },
     icon: String,
     color: { type: Number, default: 0 },
-    buffer: { type: Buffer, required: true },
+    buffer: { type: Buffer, default: Buffer.alloc(0) },
     access: { type: [String], default: [] },
     createdAt: {
         type: Date,

@@ -17,6 +17,7 @@ export const createControllerPak = async (userId: string): Promise<ControllerPak
     const maxSlots = +process.env.CONTROLLER_PAK_MAX_SLOTS!;
 
     const existing = await ControllerPak.find({ ownerId: user.ulid });
+    console.debug(`User ${user.ulid} has ${existing.length} Controller Paks, max allowed is ${maxSlots}`);
     if (existing.length >= maxSlots) {
         throw new ErrorResponse(Responses.BAD_REQUEST, 'Maximum number of Controller Paks reached');
     }
@@ -27,7 +28,6 @@ export const createControllerPak = async (userId: string): Promise<ControllerPak
         name: `#${existing.length + 1}`,
         icon: '',
         color: randomHexColor(),
-        buffer: new Buffer(0),
         access: [],
     });
 
@@ -59,6 +59,8 @@ export const uploadControllerPak = async (userId: string, pakId: string, buffer:
         throw new ErrorResponse(Responses.NOT_FOUND, 'User not found');
     }
 
+    console.debug(`Uploading Controller Pak for user ${user.ulid}, pakId: ${pakId}`, buffer);
+
     const pak = await ControllerPak.findOne({ pakId, ownerId: user.ulid });
     if (!pak) {
         throw new ErrorResponse(Responses.NOT_FOUND, 'Controller Pak not found');
@@ -71,6 +73,38 @@ export const uploadControllerPak = async (userId: string, pakId: string, buffer:
     }
 
     pak.buffer = buffer;
+    pak.updatedAt = new Date();
+    await pak.save();
+};
+
+export const updateControllerPak = async (userId: string, pakId: string, data: Partial<ControllerPak>) => {
+    const user = await User.findOne({ ulid: userId });
+    if (!user) {
+        throw new ErrorResponse(Responses.NOT_FOUND, 'User not found');
+    }
+
+    const pak = await ControllerPak.findOne({ pakId, ownerId: user.ulid });
+    if (!pak) {
+        throw new ErrorResponse(Responses.NOT_FOUND, 'Controller Pak not found');
+    }
+
+    if (data.name) {
+        pak.name = data.name;
+    }
+    if (data.access) {
+        const access = [];
+        for(const id of data.access) {
+            if(id.length !== 32){
+                continue; // Skip invalid IDs
+            }
+
+            const userIsValid = await User.findOne({ ulid: id });
+            if (userIsValid) {
+                access.push(userIsValid.ulid);
+            }
+        }
+        pak.access = access;
+    }
     pak.updatedAt = new Date();
     await pak.save();
 };
@@ -104,26 +138,4 @@ export const getControllerPaks = async (userId: string): Promise<ControllerPak[]
         delete pak.__v;
         return pak;
     });
-};
-
-export const modifyControllerPakAccess = async (userId: string, pakId: string, access: string, add: boolean) => {
-    const user = await User.findOne({ ulid: userId });
-    if (!user) {
-        throw new ErrorResponse(Responses.NOT_FOUND, 'User not found');
-    }
-
-    const pak = await ControllerPak.findOne({ pakId, ownerId: user.ulid });
-    if (!pak) {
-        throw new ErrorResponse(Responses.NOT_FOUND, 'Controller Pak not found');
-    }
-
-    if (add) {
-        if (!pak.access.includes(access)) {
-            pak.access.push(access);
-        }
-    } else {
-        pak.access = pak.access.filter((id: string) => id !== access);
-    }
-    pak.updatedAt = new Date();
-    await pak.save();
 };
