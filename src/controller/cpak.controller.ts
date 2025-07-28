@@ -8,17 +8,11 @@ export const createPak = async (req: Request, res: Response) => {
         return res.status(Responses.UNAUTHORIZED).json({ error: 'Invalid session' });
     }
 
-    const pak = req.file;
-
-    if (!pak || !pak.buffer) {
-        return res.status(Responses.BAD_REQUEST).json({ error: 'Invalid Controller Pak ID or buffer data' });
-    }
-
     console.debug('Creating Controller Pak for user:', session.ulid, req);
 
     try {
         return res.status(Responses.OK).json(
-            await createControllerPak(session.ulid, pak.buffer)
+            await createControllerPak(session.ulid)
         );
     } catch (error) {
         console.error('Error creating Controller Pak:', error);

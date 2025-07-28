@@ -8,18 +8,13 @@ export const randomHexColor = (): number => {
     return Math.floor(Math.random() * 0xFFFFFF);
 };
 
-export const createControllerPak = async (userId: string, pakData: Buffer): Promise<ControllerPak> => {
+export const createControllerPak = async (userId: string): Promise<ControllerPak> => {
     const user = await User.findOne({ ulid: userId });
     if (!user) {
         throw new ErrorResponse(Responses.NOT_FOUND, 'User not found');
     }
 
-    const maxSize  = +process.env.CONTROLLER_PAK_MAX_SIZE! * 1024;
     const maxSlots = +process.env.CONTROLLER_PAK_MAX_SLOTS!;
-
-    if (pakData.length > maxSize) {
-        throw new ErrorResponse(Responses.BAD_REQUEST, 'Controller Pak data exceeds maximum size');
-    }
 
     const existing = await ControllerPak.find({ ownerId: user.ulid });
     if (existing.length >= maxSlots) {
@@ -32,12 +27,11 @@ export const createControllerPak = async (userId: string, pakData: Buffer): Prom
         name: `#${existing.length + 1}`,
         icon: '',
         color: randomHexColor(),
-        buffer: pakData,
+        buffer: new Buffer(0),
         access: [],
     });
 
     await pak.save();
-    
     const out: any = pak.toObject();
     delete out.buffer;
     delete out._id;

@@ -12,7 +12,7 @@ const upload = multer({
 });
 
 router.get('/', authMiddleware, listPaks);
-router.post('/', upload.single('pak'), authMiddleware, createPak);
+router.post('/', authMiddleware, createPak);
 router.put('/:pakId', upload.single('pak'), authMiddleware, uploadPak);
 router.get('/:pakId', authMiddleware, downloadPak);
 router.delete('/:pakId', authMiddleware, deletePak);
