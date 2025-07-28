@@ -1,14 +1,20 @@
 import { User } from '../model/user.model';
 import { ErrorResponse, Responses } from '../types/errors';
 
+enum FriendRequestStatus {
+    SENDED = 'SENT',
+    RECEIVED = 'RECEIVED',
+    ACCEPTED = 'ACCEPTED',
+};
+
 type FriendEntry = {
     userId: string;
     username: string;
     alias: string;
     avatar: string;
-    accentColor: string;
+    accentColor: number;
     favoriteGames: string[];
-    pending: boolean;
+    status?: FriendRequestStatus;
 };
 
 export const searchFriends = async (userId: string, query: string): Promise<FriendEntry[]> => {
@@ -34,13 +40,13 @@ export const searchFriends = async (userId: string, query: string): Promise<Frie
         avatar: friend.avatar,
         accentColor: friend.accentColor,
         favoriteGames: friend.favoriteGames || [],
-        pending: user.friends.pending.includes(friend.ulid),
+        pending: user.friends.sended.includes(friend.ulid) || user.friends.received.includes(friend.ulid),
     }));
 
     return friendsList;
 };
 
-export const addFriend = async (userId: string, friendId: string) => {
+export const addFriend = async (userId: string, friendId: string): Promise<FriendEntry> => {
     const user = await User.findOne({ ulid: userId });
 
     if (!user) {
@@ -56,7 +62,11 @@ export const addFriend = async (userId: string, friendId: string) => {
         throw new ErrorResponse(Responses.DUPLICATED_ACCOUNT, 'Already friends with this user');
     }
 
-    if (user.friends.pending.includes(friendId)) {
+    if (user.friends.received.includes(friendId)) {
+        throw new ErrorResponse(Responses.WAITING_TO_ACCEPT, 'Friend request already received');
+    }
+
+    if (user.friends.sended.includes(friendId)) {
         throw new ErrorResponse(Responses.DUPLICATED_ACCOUNT, 'Friend request already sent');
     }
 
@@ -64,8 +74,20 @@ export const addFriend = async (userId: string, friendId: string) => {
         throw new ErrorResponse(Responses.BAD_REQUEST, 'Friend list is full');
     }
 
-    user.friends.pending.push(friendId);
+    user.friends.sended.push(friendId);
     await user.save();
+
+    console.debug('Added new friend request:', { userId, friendId });
+
+    return {
+        userId: friend.ulid,
+        username: friend.username,
+        alias: friend.alias,
+        avatar: friend.avatar,
+        accentColor: friend.accentColor,
+        favoriteGames: friend.favoriteGames || [],
+        status: FriendRequestStatus.SENDED,
+    };
 };
 
 export const modifyFriendRequest = async (userId: string, friendId: string, accept: boolean) => {
@@ -75,11 +97,17 @@ export const modifyFriendRequest = async (userId: string, friendId: string, acce
         throw new ErrorResponse(Responses.NOT_FOUND, 'User not found');
     }
 
-    if (!user.friends.pending.includes(friendId)) {
+    if(user.friends.sended.includes(friendId) && !accept) {
+        user.friends.sended = user.friends.sended.filter((id: string) => id !== friendId);
+        await user.save();
+        return;
+    }
+
+    if (!user.friends.received.includes(friendId)) {
         throw new ErrorResponse(Responses.NOT_FOUND, 'Friend request not found');
     }
 
-    user.friends.pending = user.friends.pending.filter((id: string) => id !== friendId);
+    user.friends.received = user.friends.received.filter((id: string) => id !== friendId);
     if (accept) {
         user.friends.list.push(friendId);
     }
@@ -109,7 +137,7 @@ export const getFriendsList = async (userId: string): Promise<FriendEntry[]> => 
     }
 
     const friendsList: FriendEntry[] = [];
-    for (const friendId of [...user.friends.list, ...user.friends.pending]) {
+    for (const friendId of [...user.friends.list, ...user.friends.received, ...user.friends.sended]) {
         const friend = await User.findOne({ ulid: friendId });
         if (friend) {
             friendsList.push({
@@ -119,7 +147,8 @@ export const getFriendsList = async (userId: string): Promise<FriendEntry[]> => 
                 avatar: friend.avatar,
                 accentColor: friend.accentColor,
                 favoriteGames: friend.favoriteGames || [],
-                pending: user.friends.pending.includes(friendId),
+                status: user.friends.sended.includes(friendId) ? FriendRequestStatus.SENDED : 
+                        user.friends.received.includes(friendId) ? FriendRequestStatus.RECEIVED : FriendRequestStatus.ACCEPTED,
             });
         }
     }

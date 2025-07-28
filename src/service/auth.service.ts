@@ -9,7 +9,7 @@ export type Session = {
     username: string;
     avatar: string;
     alias: string;
-    accentColor: string;
+    accentColor: number;
     createdAt: Date;
 };
 
@@ -41,7 +41,7 @@ export const createSessionAndUser = async (code: string) => {
             username: oauth.username,
             alias: oauth.username,
             avatar: `https://cdn.discordapp.com/avatars/${oauth.id}/${oauth.avatar}.png`,
-            accentColor: oauth.accent_color || '#000000',
+            accentColor: oauth.accent_color || 0,
         });
         await user.save();
     }

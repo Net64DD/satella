@@ -2,7 +2,8 @@ import mongoose from "mongoose";
 
 export interface UserFriends {
     list: string[];
-    pending: string[];
+    sended: string[];
+    received: string[];
 };
 
 export interface User {
@@ -16,7 +17,7 @@ export interface User {
     username: string;
     alias: string;
     avatar: string;
-    accentColor: string;
+    accentColor: number;
     favoriteGames: string[];
     friends: UserFriends;
     createdAt: Date;
@@ -33,14 +34,15 @@ const UserSchema = new mongoose.Schema<User>({
     username: { type: String, required: true },
     alias: { type: String, required: true },
     avatar: { type: String, required: true },
-    accentColor: { type: String, required: true },
+    accentColor: { type: Number, required: true },
     favoriteGames: {
         type: [String],
         default: []
     },
     friends: {
         list: { type: [String], default: [] },
-        pending: { type: [String], default: [] },
+        sended: { type: [String], default: [] },
+        received: { type: [String], default: [] },
     },
     createdAt: {
         type: Date,
