@@ -3,6 +3,7 @@ import { ErrorResponse, Responses } from '../types/errors';
 
 type FriendEntry = {
     userId: string;
+    username: string;
     alias: string;
     avatar: string;
     accentColor: string;
@@ -28,6 +29,7 @@ export const searchFriends = async (userId: string, query: string): Promise<Frie
 
     const friendsList: FriendEntry[] = users.map(friend => ({
         userId: friend.ulid,
+        username: friend.username,
         alias: friend.alias,
         avatar: friend.avatar,
         accentColor: friend.accentColor,
@@ -112,6 +114,7 @@ export const getFriendsList = async (userId: string): Promise<FriendEntry[]> => 
         if (friend) {
             friendsList.push({
                 userId: friend.ulid,
+                username: friend.username,
                 alias: friend.alias,
                 avatar: friend.avatar,
                 accentColor: friend.accentColor,
