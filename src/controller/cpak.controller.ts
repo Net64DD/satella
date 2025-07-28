@@ -8,18 +8,18 @@ export const createPak = async (req: Request, res: Response) => {
         return res.status(Responses.UNAUTHORIZED).json({ error: 'Invalid session' });
     }
 
-    if (!req.body || !req.body.data) {
-        return res.status(Responses.BAD_REQUEST).json({ error: 'Controller Pak data is required' });
+    const pak = req.file;
+
+    if (!pak || !pak.buffer) {
+        return res.status(Responses.BAD_REQUEST).json({ error: 'Invalid Controller Pak ID or buffer data' });
     }
 
-    const buffer = req.body.data;
-    if (!buffer || !Buffer.isBuffer(buffer)) {
-        return res.status(Responses.BAD_REQUEST).json({ error: 'Invalid buffer data' });
-    }
+    console.debug('Creating Controller Pak for user:', session.ulid, req);
 
     try {
-        const pak = await createControllerPak(session.ulid, buffer);
-        return res.status(Responses.OK).json(pak);
+        return res.status(Responses.OK).json(
+            await createControllerPak(session.ulid, pak.buffer)
+        );
     } catch (error) {
         console.error('Error creating Controller Pak:', error);
         if (error instanceof ErrorResponse) {
@@ -58,20 +58,22 @@ export const uploadPak = async (req: Request, res: Response) => {
         return res.status(Responses.UNAUTHORIZED).json({ error: 'Invalid session' });
     }
 
-    if (!req.body || !req.body.data) {
-        return res.status(Responses.BAD_REQUEST).json({ error: 'Controller Pak data is required' });
+    const pak = req.file;
+
+    if (!pak || !pak.buffer) {
+        return res.status(Responses.BAD_REQUEST).json({ error: 'Invalid Controller Pak ID or buffer data' });
     }
 
     const { pakId } = req.params;
-    const buffer = req.body.data;
 
-    if (!pakId || !buffer || !Buffer.isBuffer(buffer)) {
+    if (!pakId) {
         return res.status(Responses.BAD_REQUEST).json({ error: 'Invalid Controller Pak ID or buffer data' });
     }
 
     try {
-        const pak = await uploadControllerPak(session.ulid, pakId, buffer);
-        return res.status(Responses.OK).json(pak);
+        return res.status(Responses.OK).json(
+            await uploadControllerPak(session.ulid, pakId, pak.buffer)
+        );
     } catch (error) {
         console.error('Error uploading Controller Pak:', error);
         if (error instanceof ErrorResponse) {

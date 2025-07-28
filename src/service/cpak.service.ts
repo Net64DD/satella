@@ -37,7 +37,12 @@ export const createControllerPak = async (userId: string, pakData: Buffer): Prom
     });
 
     await pak.save();
-    return pak;
+    
+    const out: any = pak.toObject();
+    delete out.buffer;
+    delete out._id;
+    delete out.__v;
+    return out;
 };
 
 export const deleteControllerPak = async (userId: string, pakId: string): Promise<void> => {
@@ -98,11 +103,13 @@ export const getControllerPaks = async (userId: string): Promise<ControllerPak[]
         ]
     });
 
-    for (const pak of list) {
-        delete (pak as any).buffer;
-    }
-
-    return list;
+    return list.map(raw => {
+        const pak: any = raw.toObject();
+        delete pak.buffer;
+        delete pak._id;
+        delete pak.__v;
+        return pak;
+    });
 };
 
 export const modifyControllerPakAccess = async (userId: string, pakId: string, access: string, add: boolean) => {
