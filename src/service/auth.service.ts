@@ -42,7 +42,6 @@ export const createSessionAndUser = async (code: string) => {
             alias: oauth.username,
             avatar: `https://cdn.discordapp.com/avatars/${oauth.id}/${oauth.avatar}.png`,
             accentColor: oauth.accent_color || '#000000',
-            favoriteGames: [],
         });
         await user.save();
     }

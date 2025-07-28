@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
 
+export interface UserFriends {
+    list: string[];
+    pending: string[];
+};
+
 export interface User {
     ulid: string;
     discord: {
@@ -13,6 +18,7 @@ export interface User {
     avatar: string;
     accentColor: string;
     favoriteGames: string[];
+    friends: UserFriends;
     createdAt: Date;
 }
 
@@ -30,9 +36,16 @@ const UserSchema = new mongoose.Schema<User>({
     accentColor: { type: String, required: true },
     favoriteGames: {
         type: [String],
-        default: [],
-        required: true,
+        default: []
     },
+    friends: {
+        list: { type: [String], default: [] },
+        pending: { type: [String], default: [] },
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    }
 });
 
 export interface UserSession {

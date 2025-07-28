@@ -8,6 +8,7 @@ import { Session } from './service/auth.service';
 // Routes
 import authRouter from './routes/auth.router';
 import userRouter from './routes/user.router';
+import friendsRouter from './routes/friends.router';
 import shortenerRouter from './routes/shortener.router';
 
 declare module "express-serve-static-core" {
@@ -32,6 +33,7 @@ const startServer = async () => {
 
     app.use('/v1/auth', authRouter);
     app.use('/v1/user', userRouter);
+    app.use('/v1/friends', friendsRouter);
     app.use('/v1/discord', shortenerRouter);
 
     app.set('port', process.env.PORT || 8080);
