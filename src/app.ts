@@ -8,6 +8,7 @@ import { Session } from './service/auth.service';
 // Routes
 import authRouter from './routes/auth.router';
 import userRouter from './routes/user.router';
+import cpakRouter from './routes/cpak.router';
 import friendsRouter from './routes/friends.router';
 import shortenerRouter from './routes/shortener.router';
 
@@ -33,6 +34,7 @@ const startServer = async () => {
 
     app.use('/v1/auth', authRouter);
     app.use('/v1/user', userRouter);
+    app.use('/v1/cpak', cpakRouter);
     app.use('/v1/friends', friendsRouter);
     app.use('/v1/discord', shortenerRouter);
 
