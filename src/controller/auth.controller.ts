@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import DiscordOAuthService from '../service/discord.oauth';
 
-import { createSessionAndUser, linkUserSession } from '../service/auth.service';
+import { createSessionAndUser, deleteUserSession, linkUserSession } from '../service/auth.service';
 import { ErrorResponse, Responses } from '../types/errors';
 
 export const createAuthLink = (req: Request, res: Response) => {
@@ -62,6 +62,24 @@ export const retrieveUserSession = async (req: Request, res: Response) => {
         return res.status(Responses.OK).json(session);
     } catch (error) {
         console.error('Error retrieving user session:', error);
+        if (error instanceof ErrorResponse) {
+            return res.status(error.status).json({ error: error.message });
+        }
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+export const removeUserSession = async (req: Request, res: Response) => {
+    const { token } = req;
+    if (!token) {
+        return res.status(400).json({ error: 'Token is required' });
+    }
+
+    try {
+        const result = await deleteUserSession(token);
+        return res.status(Responses.OK).json(result);
+    } catch (error) {
+        console.error('Error removing user session:', error);
         if (error instanceof ErrorResponse) {
             return res.status(error.status).json({ error: error.message });
         }

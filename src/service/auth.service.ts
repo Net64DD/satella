@@ -129,3 +129,18 @@ export const getUserSession = async (token: string, refreshToken?: string): Prom
         createdAt: user.createdAt! || new Date(),
     };
 };
+
+export const deleteUserSession = async (token: string) => {
+    const session = await UserSession.findOne({ token });
+
+    if (!session) {
+        throw new ErrorResponse(Responses.NOT_FOUND, 'Session not found');
+    }
+
+    await session.deleteOne();
+    console.debug('Deleted user session:', session);
+
+    return {
+        message: 'User session deleted successfully',
+    };
+};

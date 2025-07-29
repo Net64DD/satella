@@ -19,6 +19,8 @@ export const authMiddleware = async (req: Request, res: Response, next: Function
             return res.status(Responses.UNAUTHORIZED).json({ error: 'Session not found' });
         }
 
+        req.token = token;
+        req.refreshToken = refreshToken;
         req.session = session;
         next();
     } catch (error) {

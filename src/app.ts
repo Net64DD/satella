@@ -15,6 +15,8 @@ import shortenerRouter from './routes/shortener.router';
 declare module "express-serve-static-core" {
   interface Request {
     session?: Session;
+    token?: string;
+    refreshToken?: string;
   }
 }
 
