@@ -74,6 +74,9 @@ export const addFriend = async (userId: string, friendId: string): Promise<Frien
         throw new ErrorResponse(Responses.BAD_REQUEST, 'Friend list is full');
     }
 
+    friend.friends.received.push(userId);
+    await friend.save();
+
     user.friends.sended.push(friendId);
     await user.save();
 
