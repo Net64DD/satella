@@ -100,36 +100,56 @@ export const modifyFriendRequest = async (userId: string, friendId: string, acce
         throw new ErrorResponse(Responses.NOT_FOUND, 'User not found');
     }
 
-    if(user.friends.sended.includes(friendId) && !accept) {
+    const friend = await User.findOne({ ulid: friendId });
+
+    if (!friend) {
+        throw new ErrorResponse(Responses.NOT_FOUND, 'Friend not found');
+    }
+
+    if(user.friends.received.includes(friendId)) {
+        user.friends.received = user.friends.received.filter((id: string) => id !== friendId);
+        friend.friends.sended = friend.friends.sended.filter((id: string) => id !== userId);
+
+        if(accept) {
+            user.friends.list.push(friendId);
+            friend.friends.list.push(userId);
+        }
+        await user.save();
+        await friend.save();
+        return;
+    }
+
+    if (user.friends.sended.includes(friendId) && !accept) {
         user.friends.sended = user.friends.sended.filter((id: string) => id !== friendId);
         await user.save();
         return;
     }
 
-    if (!user.friends.received.includes(friendId)) {
-        throw new ErrorResponse(Responses.NOT_FOUND, 'Friend request not found');
-    }
-
-    user.friends.received = user.friends.received.filter((id: string) => id !== friendId);
-    if (accept) {
-        user.friends.list.push(friendId);
-    }
-    await user.save();
+    throw new ErrorResponse(Responses.NOT_FOUND, 'Friend request not found');
 };
 
 export const removeFriend = async (userId: string, friendId: string) => {
     const user = await User.findOne({ ulid: userId });
-
+    
     if (!user) {
         throw new ErrorResponse(Responses.NOT_FOUND, 'User not found');
     }
+    
+    const friend = await User.findOne({ ulid: friendId });
 
+    if (!friend) {
+        throw new ErrorResponse(Responses.NOT_FOUND, 'Friend account not found');
+    }
+    
     if (!user.friends.list.includes(friendId)) {
-        throw new ErrorResponse(Responses.NOT_FOUND, 'Friend not found');
+        throw new ErrorResponse(Responses.NOT_FOUND, 'You are not friends with this user');
     }
 
     user.friends.list = user.friends.list.filter((id: string) => id !== friendId);
+    friend.friends.list = friend.friends.list.filter((id: string) => id !== userId);
+
     await user.save();
+    await friend.save();
 };
 
 export const getFriendsList = async (userId: string): Promise<FriendEntry[]> => {
