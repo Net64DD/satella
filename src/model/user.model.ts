@@ -6,6 +6,11 @@ export interface UserFriends {
     received: string[];
 };
 
+export interface UserBan {
+    reason: string;
+    expiresAt?: Date;
+}
+
 export interface User {
     ulid: string;
     discord: {
@@ -21,6 +26,7 @@ export interface User {
     favoriteGames: string[];
     friends: UserFriends;
     createdAt: Date;
+    bans: UserBan[];
 }
 
 const UserSchema = new mongoose.Schema<User>({
@@ -44,11 +50,14 @@ const UserSchema = new mongoose.Schema<User>({
         sended: { type: [String], default: [] },
         received: { type: [String], default: [] },
     },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    }
-});
+    bans: {
+        type: [{
+            reason: String,
+            expiresAt: Date,
+        }],
+        default: []
+    },
+}, { timestamps: true });
 
 export interface UserSession {
     userId: string;
@@ -75,16 +84,8 @@ const UserSessionSchema = new mongoose.Schema<UserSession>({
     isLinked: {
         type: Boolean,
         default: false,
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
-    expiresAt: {
-        type: Date,
-        required: true,
-    },
-});
+    }
+}, { timestamps: true });
 
 export const User = mongoose.model('User', UserSchema);
 export const UserSession = mongoose.model('User_Session', UserSessionSchema);

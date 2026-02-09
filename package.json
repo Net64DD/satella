@@ -10,7 +10,8 @@
     "app": "nodemon src/index.ts",
     "debug": "tsc: watch - tsconfig.json",
     "lint": "eslint --ignore-path .eslintignore --ext .js,.ts .",
-    "zip": "zip -r satella.zip . -x node_modules/**\\* -x .git/**\\* -x .vscode/**\\* -x .idea/**\\* -x dist/**\\* -x .DS_Store -x .env"
+    "zip": "zip -r satella.zip . -x node_modules/**\\* -x .git/**\\* -x .vscode/**\\* -x .idea/**\\* -x dist/**\\* -x .DS_Store -x .env",
+    "upload": "npm run zip && scp satella.zip satella:satella-instance && rm satella.zip"
   },
   "dependencies": {
     "cors": "^2.8.5",

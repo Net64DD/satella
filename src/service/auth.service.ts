@@ -45,8 +45,13 @@ export const createSessionAndUser = async (code: string) => {
         });
         await user.save();
     }
-
     console.debug('User found or created:', user);
+
+    const ban = user.bans.find(ban => !ban.expiresAt || ban.expiresAt > new Date());
+
+    if (ban) {
+        throw new ErrorResponse(Responses.FORBIDDEN, 'User is banned with reason: ' + ban.reason);
+    }
 
     const session = new UserSession({
         userId: user.ulid,
@@ -76,6 +81,18 @@ export const linkUserSession = async (deviceLinkCode: string, deviceId: string) 
 
     if (!session) {
         throw new ErrorResponse(Responses.NOT_FOUND, 'Session not found or already linked');
+    }
+
+    const user = await User.findOne({ ulid: session.userId });
+
+    if (!user) {
+        throw new ErrorResponse(Responses.NOT_FOUND, 'User not found');
+    }
+
+    const ban = user.bans.find(ban => !ban.expiresAt || ban.expiresAt > new Date());
+
+    if (ban) {
+        throw new ErrorResponse(Responses.FORBIDDEN, 'User is banned with reason: ' + ban.reason);
     }
 
     session.deviceId = deviceId;
@@ -116,6 +133,12 @@ export const getUserSession = async (token: string, refreshToken?: string): Prom
     const user = await User.findOne({ ulid: session.userId });
     if (!user) {
         throw new ErrorResponse(Responses.NOT_FOUND, 'User not found');
+    }
+
+    const ban = user.bans.find(ban => !ban.expiresAt || ban.expiresAt > new Date());
+
+    if (ban) {
+        throw new ErrorResponse(Responses.FORBIDDEN, 'User is banned with reason: ' + ban.reason);
     }
 
     console.debug('Retrieved user session:', session);
