@@ -7,6 +7,7 @@ export interface UserFriends {
 };
 
 export interface UserBan {
+    id: string;
     reason: string;
     expiresAt?: Date;
 }
@@ -52,6 +53,7 @@ const UserSchema = new mongoose.Schema<User>({
     },
     bans: {
         type: [{
+            id: String,
             reason: String,
             expiresAt: Date,
         }],
