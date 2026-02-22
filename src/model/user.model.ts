@@ -81,9 +81,16 @@ const UserSessionSchema = new mongoose.Schema<UserSession>(
   DEFAULT_OPTIONS,
 );
 
+export enum BanType {
+  Account = "account",
+  GameOnly = "game_only",
+};
+
 export interface UserBan {
   id: string;
   reason: string;
+  type: BanType;
+  gameId?: string;
   expiresAt?: Date;
 }
 
@@ -91,6 +98,8 @@ const UserBanSchema = new mongoose.Schema<UserBan>(
   {
     id: { type: String, required: true, unique: true },
     reason: String,
+    type: { type: String, enum: Object.values(BanType), required: true },
+    gameId: String,
     expiresAt: Date,
   },
   DEFAULT_OPTIONS,

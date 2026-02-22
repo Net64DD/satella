@@ -2,7 +2,7 @@ import { ErrorResponse, Responses } from "../types/errors";
 import DiscordOAuthService from "./discord.oauth";
 import { Ulid, Uuid4 } from "id128";
 
-import { User, UserBan, UserSession } from "../model/user.model";
+import { BanType, User, UserBan, UserSession } from "../model/user.model";
 
 export type Session = {
   ulid: string;
@@ -53,6 +53,7 @@ export const createSessionAndUser = async (code: string) => {
   const ban = await UserBan.findOne({
     userId: user.ulid,
     expiresAt: { $gt: new Date() },
+    type: BanType.Account
   });
   if (ban) {
     throw new ErrorResponse(
@@ -109,6 +110,7 @@ export const linkUserSession = async (
   const ban = await UserBan.findOne({
     userId: user.ulid,
     expiresAt: { $gt: new Date() },
+    type: BanType.Account
   });
 
   if (ban) {
@@ -167,6 +169,7 @@ export const getUserSession = async (
   const ban = await UserBan.findOne({
     userId: user.ulid,
     expiresAt: { $gt: new Date() },
+    type: BanType.Account
   });
 
   if (ban) {
