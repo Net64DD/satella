@@ -88,6 +88,7 @@ export enum BanType {
 
 export interface UserBan {
   id: string;
+  userId: string;
   reason: string;
   type: BanType;
   gameId?: string;
@@ -97,6 +98,7 @@ export interface UserBan {
 const UserBanSchema = new mongoose.Schema<UserBan>(
   {
     id: { type: String, required: true, unique: true },
+    userId: { type: String, required: true },
     reason: String,
     type: { type: String, enum: Object.values(BanType), required: true },
     gameId: String,
