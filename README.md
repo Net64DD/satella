@@ -3,11 +3,11 @@
 To install dependencies:
 
 ```bash
-npm install
+bun i
 ```
 
 To run:
 
 ```bash
-npm run app
+npm run start
 ```
