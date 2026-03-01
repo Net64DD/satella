@@ -1,6 +1,6 @@
 {
   "name": "satella",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Satella - A Bun backend for Net64 Platform",
   "main": "index.js",
   "scripts": {
