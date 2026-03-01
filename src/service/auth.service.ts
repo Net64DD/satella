@@ -44,8 +44,17 @@ export const createSessionAndUser = async (code: string) => {
       username: oauth.username,
       alias: oauth.username,
       avatar: `https://cdn.discordapp.com/avatars/${oauth.id}/${oauth.avatar}.png`,
-      accentColor: oauth.accent_color || 0,
+      accentColor: parseInt(oauth.accent_color, 16) || 0,
     });
+    await user.save();
+  } else {
+    user.avatar = `https://cdn.discordapp.com/avatars/${oauth.id}/${oauth.avatar}.png`;
+    user.accentColor = parseInt(oauth.accent_color, 16) || 0;
+    user.username = oauth.username;
+    user.alias = oauth.username;
+    user.discord.access_token = token.access_token;
+    user.discord.token_type = token.token_type;
+    user.discord.refresh_token = token.refresh_token;
     await user.save();
   }
   console.debug("User found or created:", user);
