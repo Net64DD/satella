@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
+import rateLimit from 'express-rate-limit';
 
 import type { Session } from "./service/auth.service";
 
@@ -21,11 +22,17 @@ declare module "express-serve-static-core" {
   }
 }
 
+const skip = (path: string) => {
+  return path.startsWith('/v1/security') || path.startsWith('/v1/health');
+};
+
 const startServer = async () => {
   const app = express();
 
   app.use(cors());
-  app.use(morgan("dev"));
+  app.use(morgan('dev', {
+    skip: (req, _) => skip(req.path),
+  }));
   app.use(express.json());
   app.use(express.static("assets"));
   app.use(
@@ -36,6 +43,15 @@ const startServer = async () => {
       },
     }),
   );
+  app.use(rateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 400,
+      skip: (req, _) => skip(req.path),
+      message: { error: 'Too many requests, please try again later.' }
+  }));
+  app.get('/health', (_, res) => {
+    return res.status(200).json({ status: 'ok' });
+  });
 
   app.use("/v1/auth", authRouter);
   app.use("/v1/user", userRouter);
