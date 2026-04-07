@@ -1,7 +1,9 @@
 import startServer from "./src/app";
 import mongoose from "mongoose";
+import { loadSecrets } from '@app/utils/secrets';
 
 const main = async () => {
+  await loadSecrets();
   const app = await startServer();
   await mongoose.connect(process.env.MONGODB_URI as string);
   app.listen(app.get("port"), () => {
