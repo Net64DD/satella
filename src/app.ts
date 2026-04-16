@@ -2,17 +2,23 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
+import http from "http";
 import rateLimit from 'express-rate-limit';
+
+import { NetworkLayer } from "./socket/network.layer";
 
 import type { Session } from "./service/auth.service";
 
-// Routes
-import authRouter from "./routes/auth.router";
-import userRouter from "./routes/user.router";
-import cpakRouter from "./routes/cpak.router";
-import friendsRouter from "./routes/friends.router";
-import shortenerRouter from "./routes/shortener.router";
-import achievementsRouter from "./routes/achievements.router";
+// Rest-Routes
+import authRouter from "./rest-routes/auth.router";
+import userRouter from "./rest-routes/user.router";
+import cpakRouter from "./rest-routes/cpak.router";
+import friendsRouter from "./rest-routes/friends.router";
+import shortenerRouter from "./rest-routes/shortener.router";
+import achievementsRouter from "./rest-routes/achievements.router";
+
+// Network-Routes
+import securityRouter from "./net-routes/security.router";
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -26,8 +32,12 @@ const skip = (path: string) => {
   return path.startsWith('/v1/security') || path.startsWith('/v1/health');
 };
 
-const startServer = async () => {
+const startServer = async (port: number): Promise<NetworkLayer> => {
   const app = express();
+  const server = http.createServer(app);
+  const net = new NetworkLayer();
+
+  // BEGIN: Express
 
   app.use(cors());
   app.use(morgan('dev', {
@@ -35,7 +45,7 @@ const startServer = async () => {
   }));
   app.use(express.json());
   app.use(express.static("assets"));
-  app.use(
+  app.use( // Resume the socket for raw TCP handling
     helmet({
       strictTransportSecurity: {
         maxAge: 31536000,
@@ -44,10 +54,10 @@ const startServer = async () => {
     }),
   );
   app.use(rateLimit({
-      windowMs: 15 * 60 * 1000,
-      max: 400,
-      skip: (req, _) => skip(req.path),
-      message: { error: 'Too many requests, please try again later.' }
+    windowMs: 15 * 60 * 1000,
+    max: 400,
+    skip: (req, _) => skip(req.path),
+    message: { error: 'Too many requests, please try again later.' }
   }));
   app.get('/health', (_, res) => {
     return res.status(200).json({ status: 'ok' });
@@ -59,10 +69,15 @@ const startServer = async () => {
   app.use("/v1/friends", friendsRouter);
   app.use("/v1/discord", shortenerRouter);
   app.use("/v1/achievements", achievementsRouter);
+  
+  // Begin: Network
+  net.use("/v1/security", securityRouter);
+  
+  net.start(port, (socket) => {
+    server.emit('connection', socket);
+  });
 
-  app.set("port", process.env.PORT || 8080);
-
-  return app;
+  return net;
 };
 
 export default startServer;

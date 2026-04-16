@@ -4,10 +4,12 @@ import { loadSecrets } from '@app/utils/secrets';
 
 const main = async () => {
   await loadSecrets();
-  const app = await startServer();
+  const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
+  const app = await startServer(port);
   await mongoose.connect(process.env.MONGODB_URI as string);
-  app.listen(app.get("port"), () => {
-    console.log(`Server running on port ${app.get("port")}`);
+
+  app.on('listening', () => {
+    console.log(`Server is listening on port ${port}`);
   });
 };
 

@@ -6,7 +6,7 @@ import {
   modifyUserRequest,
   removeUserFriend,
   searchFriendByQuery,
-} from "../controller/friends.controller";
+} from "@rest-controller/friends.controller";
 
 const router = Router();
 

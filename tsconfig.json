@@ -10,7 +10,8 @@
     "sourceMap": true,
     "noEmitOnError": true,
     "paths": {
-      "@controller/*": ["./src/controller/*"],
+      "@rest-controller/*": ["./src/rest-controller/*"],
+      "@net-controller/*": ["./src/net-controller/*"],
       "@models/*": ["./src/model/*"],
       "@services/*": ["./src/service/*"],
       "@types/*": ["./src/types/*"],

@@ -4,7 +4,7 @@ import {
   createUserSession,
   linkUserDevice,
   removeUserSession,
-} from "../controller/auth.controller";
+} from "@rest-controller/auth.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
 
 const router = Router();

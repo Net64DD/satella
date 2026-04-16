@@ -7,7 +7,7 @@ import {
   listPaks,
   updatePak,
   uploadPak,
-} from "../controller/cpak.controller";
+} from "@rest-controller/cpak.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
 
 const router = Router();

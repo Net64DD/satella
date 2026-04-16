@@ -3,7 +3,7 @@ import { authMiddleware } from "../middleware/auth.middleware";
 import {
   getAchievements,
   getUserAchievements,
-} from "@controller/achievements.controller";
+} from "@rest-controller/achievements.controller";
 
 const router = Router();
 
