@@ -18,7 +18,8 @@ import shortenerRouter from "./rest-routes/shortener.router";
 import achievementsRouter from "./rest-routes/achievements.router";
 
 // Network-Routes
-import securityRouter from "./net-routes/security.router";
+import securityNetRouter from "./net-routes/security.router";
+import securityRestRouter from "./rest-routes/security.router";
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -69,9 +70,10 @@ const startServer = async (port: number): Promise<NetworkLayer> => {
   app.use("/v1/friends", friendsRouter);
   app.use("/v1/discord", shortenerRouter);
   app.use("/v1/achievements", achievementsRouter);
+  app.use("/v1/security", securityRestRouter);
   
   // Begin: Network
-  net.use("/v1/security", securityRouter);
+  net.use("/v1/security", securityNetRouter);
   
   net.start(port, (socket) => {
     server.emit('connection', socket);

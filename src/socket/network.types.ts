@@ -170,7 +170,7 @@ export class NetworkRouter {
       throw new Error('Response body is required for non-empty packet types');
     }
 
-    output = Buffer.concat([output, res.body!]);
+    output = Buffer.concat([Buffer.from('HM'), output, res.body!]);
 
     if(res.is_broadcast) {
       layer.broadcast(output);
