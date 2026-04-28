@@ -30,7 +30,11 @@ declare module "express-serve-static-core" {
 }
 
 const skip = (path: string) => {
-  return path.startsWith('/v1/security') || path.startsWith('/v1/health');
+  return (
+    path.startsWith('/v1/security') ||
+    path.startsWith('/v1/health') ||
+    path === '/health'
+  );
 };
 
 const startServer = async (port: number): Promise<NetworkLayer> => {
