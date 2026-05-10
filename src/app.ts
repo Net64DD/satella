@@ -44,10 +44,11 @@ const startServer = async (port: number): Promise<NetworkLayer> => {
 
   // BEGIN: Express
 
-  app.use(cors());
   app.use(morgan('dev', {
     skip: (req, _) => skip(req.path),
   }));
+
+  app.use(cors());
   app.use(express.json());
   app.use(express.static("assets"));
   app.use( // Resume the socket for raw TCP handling
